@@ -12,7 +12,8 @@ func main() {
 	router := httprouter.New()
 
 	router.GET("/api/users", controllers.DataUser)
-	router.GET("/api/users-error", controllers.DataUserError)
+	router.GET("/api/data-error", controllers.DataError)
+	router.GET("/api/data-custom-error", controllers.DataCustomError)
 
 	server := http.Server{
 		Addr:    "localhost:3000",

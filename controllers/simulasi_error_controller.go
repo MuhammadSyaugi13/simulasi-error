@@ -2,8 +2,10 @@ package controllers
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 
+	"github.com/MuhammadSyaugi13/simulasi-error/helper"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -31,9 +33,46 @@ func DataUser(w http.ResponseWriter, req *http.Request, params httprouter.Params
 }
 
 // Method yang mengembalikan error
-func DataUserError(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
+func DataError(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
 
 	// membuat simulasi error
 	panic("Ups")
+
+}
+
+func DataCustomError(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
+
+	result, err := func() (string, error) {
+		status := "error"
+
+		if status == "error" {
+			return "", errors.New("ups terjadi error")
+		}
+
+		return "Berhasil", nil
+	}()
+
+	if err != nil {
+		helper.HandleIfError(err)
+
+		// Mengembalikan response error
+		pesan := []map[string]interface{}{
+			{"code": 500},
+			{"status": "INTERNAL SERVER ERROR"},
+			{"data": result},
+		}
+
+		// Convert slice data pesan ke JSON
+		jsonData, err := json.Marshal(pesan)
+		if err != nil {
+			panic(err)
+		}
+
+		// memberikan response data users
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write(jsonData)
+		return
+	}
 
 }
